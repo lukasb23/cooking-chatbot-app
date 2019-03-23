@@ -22,19 +22,19 @@ This repo is the actual app hosted on Google Cloud. The steps to crawl the data 
 #### To test locally:
 
 - Start Redis
-    cd Programs/redis-5.0.3/src
-    ./redis-server
+  - cd Programs/redis-5.0.3/src
+  - ./redis-server
 - Start Elasticsearch
-    cd Programs/elasticsearch-6.6.1/
-    ./bin/elasticsearch
+  - cd Programs/elasticsearch-6.6.1/
+  - ./bin/elasticsearch
 - Setup Ngrok
-    cd Programs/
-    ./ngrok http 127.0.0.1:5000
+  - cd Programs/
+  - /ngrok http 127.0.0.1:5000
 - Flask
   - export commands & activate Flask environment "chatbot-env"
-      export LC_ALL=C.UTF-8
-      export LANG=C.UTF-8
-      source chatbot-env/bin/activate
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - source chatbot-env/bin/activate
   - flask run
 - Edit Messenger Subscription with current tunnel
   - https://developers.facebook.com/apps/[your_app]/webhooks/
