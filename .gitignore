@@ -1,3 +1,8 @@
+#Custom folders 
+keys/
+chatbot-env/
+archive/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,0 +1,47 @@
+#Imports
+import os
+import dialogflow
+from google.api_core.exceptions import InvalidArgument
+
+#Modules
+from .md_dialog_logic import Search
+
+#Dialogflow parameter
+project_id = os.getenv('DIALOGFLOW_PROJECT_ID')
+language_code = 'en'
+
+
+def detect_intent_texts(user_id, text):
+    
+    """Handles Dialogflow's intent detection and response generation"""
+    
+    session_client = dialogflow.SessionsClient()
+    session_dialogflow = session_client.session_path(project_id, user_id)
+
+    if text:
+        text_input = dialogflow.types.TextInput(
+            text=text, language_code=language_code
+        )
+        query_input = dialogflow.types.QueryInput(text=text_input)
+        try:
+            response = session_client.detect_intent(
+                session=session_dialogflow, query_input=query_input
+            )
+        except InvalidArgument:
+            return ("I'm sorry, but your message was too long for me to handle,\
+                    please stick to a maximum of 256 characters.", None, None)
+        
+        intent = response.query_result.intent.display_name
+        fields = response.query_result.parameters.fields
+        
+        print(intent)
+        print(response)
+        
+        #let Dialogflow handle all non-related queries
+        if not intent.startswith("search"):
+            return (response.query_result.fulfillment_text, None, None)
+        
+        #custom logic
+        else:
+            return Search(text,user_id,intent,fields).logic()
+            

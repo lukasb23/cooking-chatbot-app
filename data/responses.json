@@ -1,0 +1,82 @@
+{
+  "meal":         { "text":           ["Alright. Which kind of meal are you aiming at today?", "Got it! Which kind of meal do you want to prepare?"],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                       "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-deleted":   ["Alright. Which meal type shall I put onto the list instead?"],
+                    "quick-replies":  ["Doesn't matter", "Breakfast", "Side", "Buffet", "Drink", "Appetizer", "Dessert", "Small plates"] },
+  
+     
+  "time":         { "text":           ["Good. What are your preferences concerning preparation time?", "Fabulous. How about preparation time?"],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                       "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-none":      ["Alright, open for all. How quickly do you need to be done with preparing?", "Open for all, good. How about preparation time?"],
+                    "text-deleted":   ["Alright. Which cooking time shall I put onto the list instead?"],
+                    "quick-replies":  ["Quick", "Standard", "Long", "Doesn't matter"] },
+                    
+
+  "difficulty":   { "text":           ["Fine. Concerning difficulty of preparation, do you prefer easy or standard?", "Noted. Any wishes concerning difficulty of preparation?"],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                       "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-none":      ["No preferences are noted. Concerning difficulty of preparation, do you prefer easy or normal?",
+                                       "Fine, no preferences. Any wishes concerning difficulty of preparation?"],
+                    "text-deleted":   ["Alright, dropped. Which difficulty would you go for now?"],
+                    "quick-replies":  ["Easy", "Normal", "Doesn't matter"] },
+
+  "cuisine":      { "text":           ["Alright. Do you maybe want to indicate which kind of cuisine?", "Got it! Any special kind of kitchen?"],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                       "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-none":      ["Good, noted no preferences. Do you maybe want to indicate which kind of cuisine?", "Got it, no preferences. Any special kind of kitchen?"],
+                    "text-deleted":   ["Alright. Which cuisine shall we go for instead?"],
+                    "quick-replies":  ["All", "American", "Latin American", "Asian", "Chinese", "Tex-Mex", "French", "Italian"] },
+                    
+  "ingredient":   { "text":           ["Cool, noted {}. Any types of food or ingredients you are particularly craving for?",
+                                       "{}. Good choice! Any particular types of food or ingredients you're looking for?"],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                      "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-none":      ["No preferences, fine. Any types of food or ingredients you are particularly craving for?",
+                                       "Open for everything! That's fair! Any particular types of food or ingredients you're looking for?"],
+                    "text-deleted":   ["Alright, all ingredients dropped. Shall we put anything on the ingredient list instead?"],
+                    "quick-replies": ["None", "Sandwiches", "Pasta", "Rice", "Chicken", "Curry", "Salad", "Beef", "Fish", "Peppers"] },
+                     
+  "special":      { "text":           ["Got it, {} is saved. One last point: Do you have any dietary concerns?", "Cool, added {} to your search. Finally, do you have any special concerns?",
+                                      "OK, we'll search for {}. Lastly, shall I mind any special consideration?" ],
+                    "text-yes":       ["Alright. Let me know by clicking on one of the options below or typing in a similar response.",
+                                       "Good to hear! To let me know, just type in a response or click on one of the shortcuts below."],
+                    "text-none":      ["Got it, no preferences. One last point: Do you have any dietary concerns?", "OK, let's leave all options open. Finally, do you have any special concerns?",
+                                       "Alright, added no preferences to the search. Lastly, shall I mind any special consideration?" ],
+                    "text-deleted":   ["Alright, all specials deleted. Shall we put anything on the specials list instead?"],
+                    "quick-replies":  ["None", "Low cal", "Veggie", "Vegan", "Healthy", "Kosher", "Gluten-free", "No Cooking", "No Alcohol", "Low Carb"] },
+                    
+  "search-complete": { "text":        ["Superbe. Everything collected: {}. \n\nCorrect?", "Nice, we're nearly there: {}. \n\nCorrect?",
+                                       "Awesome. Your search parameters: {} \n\nCorrect?", "Superbe. Have a look at your parameters: {}. \n\nCorrect?"],
+                      "quick-replies":  ["Yes", "No"] },
+                      
+  "search-edit":     ["Alright, have a look at your current search parameters: {}. \n\nWhat shall we edit?",
+                      "Good, here are your current search parameters: {}. \n\nWhich changes would you like to make?"],
+  
+  "no-more-results": { "text":        ["Apologies, no more search results available!",
+                                       "Apologies, you've reached the maximum of search results!"],
+                      "quick-replies":  ["Edit search", "Restart search"] },
+  
+                      
+  "start-over":      {"text": ["Alright, let's start from scratch again. What can I do for you now?",
+                      "All cleared, let's start fresh. How can I help you now?"],
+                      "quick-replies":  ["Guided search", "Custom search", "More info"] },
+  
+  "welcome":        "Welcome to the unofficial Epicurious recipe bot! I'm here to guide you through your recipe search today. You can communicate with me either by clicking the shortcut buttons below or by typing in text. During our chat, I will collect everything you said in order to find you a superbe recipe. If you want to end the search and start over fresh, you can always type 'Restart' or use the menu \u2630 next to the text field. \nLet's get started?! :)",
+  
+  "greet":          "Welcome to the unofficial Epicurious recipe bot! For details refer to https://github.com/lukasb23/cooking-chatbot. Click the button below to get started!",
+  
+  "functionality":  { "text": ["I'm trained to guide you through the whole process of selecting a dish. You can start by asking me about recipes, for instance based on some ingredients you have at home or mood you're in. Just try it out and ask me by typing or clicking on the buttons below.",
+   "Basically, I'm able to answer any questions you might have concerning your recipe selection. I can, for instance, tell you which ingredients you need to buy for a certain dish. You can communicate with me by clicking the shortcut buttons below or by typing in whichever text manually.",
+   "I'm here for you to make a perfect dish selection today. We'll make a search together where I collect everything you told me to find one of our over 35.000 recipes. Tell me anything you like - by clicking on the shortcut buttons or by typing in text - and I'll find a great recipe.",
+   "I was created for you to make a superbe choice of one of our over 35.000 recipes. E.g. you can use the custom search and type 'I've got broccoli, rice and chicken and I want to make a delicious curry.' Alternatively, in the guided search, you'll be asked concrete questions. Try it out!",
+   "I was created to help you selecting one of our over 35.000 recipes. In the custom search, you can tell me anything you like concerning your aimed selection. In the guided search I will ask you specific questions. Try it out! You'll be amazed of what I'm capable of 😎."],
+                      "quick-replies":  ["Guided search", "Custom search", "More info"] },
+  "delete-failed": ["Failed to delete at least one of the items you mentioned {}. Probably, they have not been on the search list."],
+  "replace-failed": ["To replace an element of the search, please use one item of the same category to be dropped and one to be added. E.g. 'Replace broccoli with chicken.' or 'For difficulty, add easy instead of normal."],
+  "intent-match-failed": ["Apologies, but I couldn't make sense of what you said. Could you rephrase?",
+                          "I'm very sorry, but this time I couldn't understand what you said. Could you rephrase?"],
+  "thank-you": ["Very glad I could help!", "It's been a pleasure.", "Whenever you need it.", "You're absolutely welcome."],
+  "search-confirm-no": ["OK. Let me know what I can change by typing in text.", "OK. Which changes shall we make?", "Alright. What shall we edit?"]
+}
