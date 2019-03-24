@@ -1,9 +1,9 @@
 # cooking-chatbot-app
 
-Building a Cooking Chatbot to search through >35.000 recipes from Epicurious.
-
+Building a Cooking Chatbot to search through >35.000 recipes from Epicurious, YouTube demo below: </br>
 
 [![EpiBot Demo](https://img.youtube.com/vi/zcZn3eAQzoI/0.jpg)](https://www.youtube.com/watch?v=zcZn3eAQzoI) 
+
 
 #### Key points:
 - \>35k recipes extracted from epicurious.com
