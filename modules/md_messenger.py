@@ -24,13 +24,12 @@ from .md_elasticsearch import Elastic
 #Responses
 with open("data/responses.json", "r") as f:
     responses = json.load(f)
-    
-    
+
 #Helpers
 def process_quick_rpls(quick_rpls):
-    
+
     """Takes n number of quick_replies and returns them processed"""
-    
+
     q_rpls_list = []
     for q_r in quick_rpls:
         q_rpls_list.append(quick_replies.QuickReply(title=q_r, payload=q_r))
@@ -114,8 +113,6 @@ class Messenger(BaseMessenger):
         pass
     
     def postback(self, message):
-        
-        print(message)
         user_id = message['sender']['id']
         payload = message['postback']['payload']
         
@@ -168,15 +165,12 @@ class Messenger(BaseMessenger):
                 return response.to_dict()
             if 'text' in message['message']:
                 message_text = message['message']['text']
-                print('Extracted message text')
         
         elif "postback" in message:
-            print('POSTBACK')
             return self.postback(message)
         
         #run logic
         text, quick_rpls, elastic_hits = detect_intent_texts(user_id, message_text)
-        print(text, quick_rpls, elastic_hits)
         
         if quick_rpls is None and elastic_hits is None:
             response = Text(text=text)

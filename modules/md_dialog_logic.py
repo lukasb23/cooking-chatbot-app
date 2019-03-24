@@ -1,7 +1,6 @@
 #Imports
 import random
 import json
-from rejson import Client, Path
 from collections import OrderedDict as od
 
 #Modules
@@ -39,7 +38,6 @@ class Search:
         
         self.param_dict, self.changed = self.get_expressed_params(self.fields)
         self.state_dict = self.merge_previous_params()
-        print(self.state_dict)
         
     
     def __repr__(self):
@@ -73,7 +71,6 @@ class Search:
             if len(param_dict[entity]) > 0:
                 changed += [v for v in param_dict[entity]]
         
-        print(param_dict, changed)
         return param_dict, changed
             
             
@@ -83,10 +80,8 @@ class Search:
         """Retrieves previously expressed params and merges with current params"""
         
         state_dict = redis_get(self.user_id)
-        print('state_loaded:', state_dict)
         
         if state_dict:
-            print('Entered 1')
             #merge with current params, filter None, drop duplicates
             for entity in entities.keys():
                 new = list(set(state_dict['search-params'][entity]+self.param_dict[entity]))
@@ -96,11 +91,9 @@ class Search:
                 
         #no user data available
         else:
-            print('Entered 2')
             state_dict = od()
             state_dict.update({'search-params': self.param_dict})
         
-        print(state_dict)
         return state_dict
     
     
@@ -128,7 +121,6 @@ class Search:
            
             #save stage
             self.state_dict["stage"] = missing_entity
-            print(self.state_dict)
             
             #save to redis
             redis_set(self.user_id, self.state_dict)
@@ -149,7 +141,6 @@ class Search:
             prompt_qrpls = ["Main"] + labels[:-1] if missing_entity == "meal" else labels
             prompt_text = random.choice(prompt).format(join(self.changed))
             
-            print((prompt_text, prompt_qrpls, None))
             return (prompt_text, prompt_qrpls, None)
             
         #search complete
@@ -171,8 +162,6 @@ class Search:
     def search(self):
         
         """Pushes Search"""
-        
-        print('Initiated Search')
         
         #Remove current search results
         self.state_dict['search_results'] = []
@@ -258,7 +247,6 @@ class Search:
             elif self.intent == "search-delete-1-item":
                 
                 removed = False
-                print(self.changed)
                 for key,vals in self.state_dict['search-params'].items():
                     for c in self.changed:
                         if c in vals:

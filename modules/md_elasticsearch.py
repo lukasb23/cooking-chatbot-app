@@ -10,7 +10,8 @@ from .md_redis import redis_get
 
 
 #Elastic connection
-elastic_host = os.environ.get('ELASTIC_HOST', 'localhost')
+with open("config/keys.json") as f: 
+    elastic_host = json.load(f)['ELASTIC_HOST']
 es = Elasticsearch("http://{}:9200".format(elastic_host))
 
 #No urls
@@ -31,8 +32,6 @@ class Elastic:
     def get_search_terms(self, state_dict):
         
         """Extracts search terms from state_dict"""
-        
-        print('Entered must array')
         
         shoulds = []
         all_tags = []
@@ -70,8 +69,6 @@ class Elastic:
                      'title': hit['_source']['title'],
                      'url': hit['_source']['url'] }
                 
-                print(hit_dict)
-                
                 if hit_dict['image_url'] == None:
                     hit_dict['image_url'] = random.choice(image_urls['no-urls'])
                 
@@ -92,8 +89,7 @@ class Elastic:
     def run_search(self, body):
         
         """Runs Elasticsearch and fills max. 5 entries in the hit list"""
-        
-        print('Entered Run Search')
+
         res = es.search(
                 index = self.index,
                 doc_type = self.doc_type,
@@ -105,8 +101,6 @@ class Elastic:
     def search(self, state_dict):
         
         """Builds and runs search"""
-        
-        print('Elasticsearch started')
         
         self.boosts = {"meal": 3, "time": 3, "difficulty": 2, "ingredient": 4,
                        "special": 3, "cuisine": 1, "occasion": 1, "technique": 1}
@@ -161,7 +155,6 @@ class Elastic:
         """Returns ingredients in grouped content format"""
             
         res_string = ""
-        print(res_list)
         
         for res in res_list:
             k = res["ingredient_group"]
@@ -192,8 +185,6 @@ class Nutrients:
     def __init__(self, nutrient_dict):
         
         self.nutrients = nutrient_dict
-        print(self.nutrients)
-        
         self.mapping_terms = {"calories": "Calories",
                    "fat": "Fat (g)",
                    "saturated_fat": "Saturated Fat (g)",
