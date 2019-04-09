@@ -67,12 +67,12 @@ def get_recipe_hits(elastic_hits):
     for i,hit in enumerate(elastic_hits):
         btn1 = get_ingredient_button(i)
         btn2 = get_nutrient_button(i)
-        btn3 = get_recipe_button('tall', hit['url'])
+        btn3 = get_recipe_button('full', hit['url'])
         elements.append(Element(
             title=hit['title'],
             item_url=hit['url'],
             image_url=hit['image_url'],
-            subtitle=hit['desc'],
+            subtitle=hit['subtitle'],
             buttons=[btn1, btn2, btn3]
         ))
     
@@ -96,8 +96,13 @@ class Messenger(BaseMessenger):
         super(Messenger, self).__init__(self.page_access_token)
 
     def message(self, message):
-        response = self.process_message(message)
-        res = self.send(response, 'RESPONSE')
+        response, callback = self.process_message(message)
+        if callback:
+            response_info = self.generate_info_message()
+            res = self.send(response_info, 'RESPONSE')
+            res = self.send(response, 'RESPONSE')
+        else:
+            res = self.send(response, 'RESPONSE')
         app.logger.info('Response: {}'.format(res))
 
     def delivery(self, message):
@@ -117,7 +122,9 @@ class Messenger(BaseMessenger):
         payload = message['postback']['payload']
         
         if "WELCOME" in payload:
-            text = responses["welcome"]
+            text = responses["welcome"][0]
+            self.handle_response(text)
+            text = responses["welcome"][1]
             self.handle_response(text, ["Guided search", "Custom search", "More info"])
             
         if "RESTART" in payload:
@@ -158,6 +165,7 @@ class Messenger(BaseMessenger):
         app.logger.info('Message received: {}'.format(message))
         
         user_id = message['sender']['id']
+        callback = False
         
         if "message" in message:
             if 'attachments' in message['message']:
@@ -179,11 +187,21 @@ class Messenger(BaseMessenger):
             qrs = process_quick_rpls(quick_rpls)
             response = Text(text=text, quick_replies=qrs)
             
-        elif elastic_hits:
+        elif elastic_hits and text is None:
             response = display_recipe_hits(elastic_hits)
+        
+        elif elastic_hits and text:
+            response = display_recipe_hits(elastic_hits)
+            callback = True
             
-        return response.to_dict()
+        return (response.to_dict(), callback)
     
+    
+    def generate_info_message(self):
+        
+        response = Text(text=random.choice(responses["no-exact-match"]))
+        return response.to_dict()
+        
     
     def send_recipe_details(self, user_id, payload, kind):
         
@@ -201,8 +219,11 @@ class Messenger(BaseMessenger):
         
         """Handles generic response sending"""
         
-        qrs = process_quick_rpls(qrs_list)
-        response = Text(text=text, quick_replies=qrs).to_dict()
+        if qrs_list:
+            qrs = process_quick_rpls(qrs_list)
+            response = Text(text=text, quick_replies=qrs).to_dict()
+        else:
+            response = Text(text=text).to_dict()
         res = self.send(response, 'RESPONSE')
         app.logger.info('Response: {}'.format(res))
         

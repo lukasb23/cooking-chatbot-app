@@ -9,7 +9,7 @@ from google.oauth2.service_account import Credentials
 from .md_dialog_logic import Search
 
 #Dialogflow parameter
-with open("config/keys.json") as f: 
+with open("config/keys.json") as f:
     project_id = json.load(f)['DIALOGFLOW_PROJECT_ID']
 
 dialogflow_config_path = 'config/cooking-chatbot-f88b6ceeeb5e.json'
@@ -41,7 +41,12 @@ def detect_intent_texts(user_id, text):
         fields = response.query_result.parameters.fields
                 
         #let Dialogflow handle all non-related queries
-        if not intent.startswith("search"):
+        print('INTENT', intent)
+        if intent == "default-welcome-intent":
+            return (response.query_result.fulfillment_text,
+                    ["Guided search", "Custom search", "More info"], None)
+        
+        elif not intent.startswith("search"):
             return (response.query_result.fulfillment_text, None, None)
         
         #custom logic

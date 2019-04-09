@@ -29,7 +29,7 @@ This repo is the actual app hosted on Google Cloud. The steps to crawl the data 
   - ./bin/elasticsearch
 - Setup Ngrok
   - cd Programs/
-  - /ngrok http 127.0.0.1:5000
+  - ./ngrok http 127.0.0.1:8080
 - Flask
   - export commands & activate Flask environment "chatbot-env"
     - export LC_ALL=C.UTF-8

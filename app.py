@@ -12,7 +12,7 @@ from modules.md_messenger import Messenger
 app = Flask(__name__)
 
 #Keys
-with open("config/keys.json") as f: 
+with open("config/keys.json") as f:
     keys = json.load(f)
 
 app.config['SECRET_KEY'] = keys['FLASK_SECRET_KEY']
@@ -21,7 +21,7 @@ FB_VERIFY_TOKEN = keys['FB_VERIFY_TOKEN']
 messenger = Messenger(FB_ACCESS_TOKEN)
 
 
-#Enable gunicorn logging 
+#Enable gunicorn logging
 if __name__ != "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers = gunicorn_logger.handlers

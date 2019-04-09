@@ -1,0 +1,80 @@
+POST /recipes/recipe/_search
+{
+  "from": 0,
+  "size": 5,
+  "query": {
+    "bool": {
+      "must":
+        [
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.meal.keyword": {"value": "Main"}}},
+                {"term": {"categories.meal.keyword": {"value": "Side"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.time.keyword": {"value": "Quick"}}},
+                {"term": {"categories.time.keyword": {"value": "Standard"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.difficulty.keyword": {"value": "Easy"}}},
+                {"term": {"categories.difficulty.keyword": {"value": "Normal"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.cuisine.keyword": {"value": "American"}}},
+                {"term": {"categories.cuisine.keyword": {"value": "Asian"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.technique.keyword": {"value": "Grill"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"should":
+              [
+                {"term": {"categories.occasion.keyword": {"value": "Backyard BBQ"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"must":
+              [
+                {"term": {"categories.ingredient.keyword": {"value": "Chicken"}}},
+                {"term": {"categories.ingredient.keyword": {"value": "Orange"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"must":
+              [
+                {"term": {"categories.special.keyword": {"value": "Nut Free"}}}
+              ]
+            }
+          },
+          {"bool":
+            {"must_not":
+              [
+                {"term": {"categories.ingredient.keyword": {"value": "Zucchini"}}}
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }

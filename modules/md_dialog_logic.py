@@ -16,7 +16,8 @@ entities = od({"meal": "meals",
                "ingredient": "types and ingredients",
                "special": "special concerns",
                "occasion": "special occasions",
-               "technique": "techniques"
+               "technique": "techniques",
+               "avoid": "avoid"
 })
 
 #Responses
@@ -36,6 +37,7 @@ class Search:
     
     def fill_search(self):
         
+        self.expired = False
         self.param_dict, self.changed = self.get_expressed_params(self.fields)
         self.state_dict = self.merge_previous_params()
         
@@ -44,10 +46,11 @@ class Search:
         
         """String representation of current search"""
         
+        print(self.state_dict)
         search = ["\n"]
         for k,v in self.state_dict['search-params'].items():
             if v == [None]:
-                search.append("{}: no preferences".format(entities[k].capitalize()))
+                search.append("{}: No Preferences".format(entities[k].capitalize()))
             elif len(v) != 0:
                 search.append("{}: {}".format(entities[k].capitalize(), join(v)))
             
@@ -82,21 +85,55 @@ class Search:
         state_dict = redis_get(self.user_id)
         
         if state_dict:
-            #merge with current params, filter None, drop duplicates
-            for entity in entities.keys():
-                new = list(set(state_dict['search-params'][entity]+self.param_dict[entity]))
-                if None in new and len(new) > 1:
-                    new = list(filter(None,new))
-                state_dict['search-params'][entity] = new
-                
+            
+            #extra case #1: ingredients, you don't like, expressed with special
+            if state_dict['stage'] == "special":
+                state_dict['search-params']["avoid"] = self.param_dict.get("ingredient")
+                state_dict['search-params']["special"] = [None]
+                state_dict = self.merge_except(True, state_dict)
+            
+            #extra case #2: ingredients, you don't like, expressed during dialogue
+            elif self.intent == 'search-avoid':
+                if state_dict['search-params'].get("avoid"):
+                   state_dict['search-params']["avoid"] += self.param_dict.get("ingredient")
+                else:
+                     state_dict['search-params']["avoid"] = self.param_dict.get("ingredient")
+                state_dict = self.merge_except(True, state_dict)
+            
+            else:
+                state_dict = self.merge_except(False, state_dict)
+            
+            print(state_dict)
+            
         #no user data available
         else:
+            if len(self.changed) == 0:
+                self.expired = True
             state_dict = od()
             state_dict.update({'search-params': self.param_dict})
         
         return state_dict
     
     
+    def merge_except(self, ingr, state_dict):
+        
+        """Merges with current params, filters None, drops duplicates"""
+        
+        #remove ingredient if ingr
+        entities_list = list(entities.keys())
+        if ingr:
+            entities_list.remove("ingredient")
+        
+        #merge
+        for entity in entities_list:
+            new = list(set(state_dict['search-params'][entity]+self.param_dict[entity]))
+            if None in new and len(new) > 1:
+                new = list(filter(None,new))
+            state_dict['search-params'][entity] = new
+            
+        return state_dict
+        
+
     def check_required_entities(self):
         
         """Checks for undefined entities"""
@@ -135,7 +172,11 @@ class Search:
             if missing_entity in ["difficulty", "time"]:
                 labels = prompts["quick-replies"]
             else:
-                labels = random.sample(prompts["quick-replies"][1:], 3) + prompts["quick-replies"][:1]
+                qrs = prompts["quick-replies"]
+                if missing_entity == "special":
+                    labels =  random.sample(qrs[1:5], 1) + random.sample(qrs[6:], 1) + qrs[:1]
+                else:
+                    labels = random.sample(qrs[1:], 3) + qrs[:1]
             
             #fix "main" in meal
             prompt_qrpls = ["Main"] + labels[:-1] if missing_entity == "meal" else labels
@@ -166,14 +207,18 @@ class Search:
         #Remove current search results
         self.state_dict['search_results'] = []
         
-        elastic_hits = Elastic().search(self.state_dict)
+        elastic_hits, elastic_exact = Elastic().search(self.state_dict)
         
         #Add search result ids to state_dict
         self.state_dict['search_results'] = [hit['id'] for hit in elastic_hits]
         self.state_dict['stage'] = "completed-yes"
         redis_set(self.user_id, self.state_dict)
         
-        return (None, None, elastic_hits)
+        #Return True when unexact match
+        if elastic_exact:
+            return (None, None, elastic_hits)
+        else:
+            return (True, None, elastic_hits)
         
         
     def reset_entity(self, entity):
@@ -181,7 +226,7 @@ class Search:
         """Rests Entity to no items"""
         
         self.state_dict['search-params'][entity] = []
-        if entity not in ["occasion", "technique"]:
+        if entity not in ["avoid", "occasion", "technique"]:
             return self.check_and_respond("-deleted")
         else:
             return self.check_and_respond()
@@ -193,22 +238,22 @@ class Search:
         
         try:
         
-            #early return if "start-over" or "functionality"
+            #IF-BLOCK: early return if "start-over" or "functionality"
             if self.intent == "search-start-over":
                 redis_delete(self.user_id)
                 prompts = responses["start-over"]
                 return (random.choice(prompts["text"]), prompts["quick-replies"], None)
-                
+            
+            #functionality
             elif self.intent == "search-functionality-question":
                 prompts = responses["functionality"]
                 return (random.choice(prompts["text"]), prompts["quick-replies"], None)
-    
-    
+                
             #for all else: fill search
             self.fill_search()
-            
-            #normal search
-            if self.intent == "search":
+                        
+            #IF_BLOCK: normal search (only matched in Dialogflow context == Redis Expire)
+            if self.intent == "search" or self.intent == "search-avoid":
                 return self.check_and_respond()
             
             #no responses
@@ -243,6 +288,12 @@ class Search:
                     self.state_dict['search_batch'] = 0
                     return self.search()
             
+            #IF-BLOCK: search expired
+            if self.expired:
+                print('EXPIRED')
+                return ("Apologies, but your search is expired. Let's restart! :)",
+                        ["Restart search"], None)
+            
             #delete one item by name
             elif self.intent == "search-delete-1-item":
                 
@@ -255,7 +306,7 @@ class Search:
                 if removed:
                     return self.check_and_respond("-deleted")
                 else:
-                    return (responses["delete-failed"][0].format(self.changed), None, None)
+                    return (responses["delete-failed"][0], None, None)
                     
             #delete entire category
             elif self.intent == "search-delete-meals":
@@ -281,6 +332,9 @@ class Search:
                 
             elif self.intent == "search-delete-techniques":
                 return self.reset_entity("technique")
+            
+            elif self.intent == "search-delete-avoided":
+                return self.reset_entity("avoid")
                 
             #search replace
             elif self.intent == "search-replace-with" or self.intent == "search-instead":
@@ -295,7 +349,11 @@ class Search:
                 else:
                     return (responses["replace-failed"][0], None, None)
             
-            #load more results, index ['search_batch']
+            #edit search
+            elif self.intent == 'search-edit':
+                return (random.choice(responses["search-edit"]).format(repr(self)), None, None)
+                    
+            #load
             elif self.intent == 'search-load-more':
                 self.state_dict['search_batch'] += 5
                 if self.state_dict['search_batch'] == 20:
@@ -303,15 +361,11 @@ class Search:
                     return (random.choice(prompts['text']), prompts['quick-replies'], None)
                 else:
                     return self.search()
-                    
+                
             #show current results again
             elif self.intent == 'search-show-current':
                  return self.search()
                 
-            #edit search
-            elif self.intent == 'search-edit':
-                return (random.choice(responses["search-edit"]).format(repr(self)), None, None)
-            
             #custom fallback
             else:
                 return (responses["intent-match-failed"], None, None)
