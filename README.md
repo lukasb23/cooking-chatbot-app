@@ -41,3 +41,7 @@ This repo is the actual app hosted on Google Cloud. The steps to crawl the data 
   - flask run
 - Edit Messenger Subscription with current tunnel
   - https://developers.facebook.com/apps/[your_app]/webhooks/
+  
+#### Disclaimer:
+
+This project is for research purposes only.
