@@ -38,7 +38,7 @@ class Search:
     def fill_search(self):
         
         self.expired = False
-        self.param_dict, self.changed = self.get_expressed_params(self.fields)
+        self.param_dict, self.changed = self.get_expressed_params()
         self.state_dict = self.merge_previous_params()
         
     
@@ -46,7 +46,6 @@ class Search:
         
         """String representation of current search"""
         
-        print(self.state_dict)
         search = ["\n"]
         for k,v in self.state_dict['search-params'].items():
             if v == [None]:
@@ -57,7 +56,7 @@ class Search:
         return "\n".join(search)
         
         
-    def get_expressed_params(self, fields):
+    def get_expressed_params(self):
     
         """Extracts all currently expressed params"""
         
@@ -67,7 +66,7 @@ class Search:
             
             try:
                 param_dict[entity] = [value.string_value
-                                      for value in fields.get(entity).list_value.values]
+                                      for value in self.fields.get(entity).list_value.values]
             except AttributeError:
                 param_dict[entity] = []
                 
@@ -77,7 +76,6 @@ class Search:
         return param_dict, changed
             
             
-
     def merge_previous_params(self):
         
         """Retrieves previously expressed params and merges with current params"""
@@ -89,21 +87,18 @@ class Search:
             #extra case #1: ingredients, you don't like, expressed with special
             if state_dict['stage'] == "special":
                 state_dict['search-params']["avoid"] = self.param_dict.get("ingredient")
-                state_dict['search-params']["special"] = [None]
-                state_dict = self.merge_except(True, state_dict)
-            
+                state_dict['search-params']["special"] = self.param_dict.get("special")
+                if len(state_dict['search-params']["special"]) == 0:
+                    state_dict['search-params']["special"] = [None]
+                    
             #extra case #2: ingredients, you don't like, expressed during dialogue
             elif self.intent == 'search-avoid':
                 if state_dict['search-params'].get("avoid"):
                    state_dict['search-params']["avoid"] += self.param_dict.get("ingredient")
                 else:
                      state_dict['search-params']["avoid"] = self.param_dict.get("ingredient")
-                state_dict = self.merge_except(True, state_dict)
-            
-            else:
-                state_dict = self.merge_except(False, state_dict)
-            
-            print(state_dict)
+                
+            state_dict = self.merge_except(state_dict)
             
         #no user data available
         else:
@@ -115,22 +110,26 @@ class Search:
         return state_dict
     
     
-    def merge_except(self, ingr, state_dict):
+    def merge_except(self, state_dict):
         
         """Merges with current params, filters None, drops duplicates"""
         
-        #remove ingredient if ingr
-        entities_list = list(entities.keys())
-        if ingr:
-            entities_list.remove("ingredient")
-        
         #merge
-        for entity in entities_list:
+        for entity in list(entities.keys()):
             new = list(set(state_dict['search-params'][entity]+self.param_dict[entity]))
             if None in new and len(new) > 1:
                 new = list(filter(None,new))
             state_dict['search-params'][entity] = new
             
+        #dedup ingredients
+        avoid_set = set(state_dict['search-params']['avoid'])
+        if len(avoid_set) > 0:
+            ingredient_set = set(state_dict['search-params']['ingredient'])
+            for v in avoid_set & ingredient_set:
+                state_dict['search-params']['ingredient'].remove(v)
+        if len(state_dict['search-params']['ingredient']) == 0:
+            state_dict['search-params']['ingredient'] = [None]
+        
         return state_dict
         
 
@@ -179,7 +178,7 @@ class Search:
                     labels = random.sample(qrs[1:], 3) + qrs[:1]
             
             #fix "main" in meal
-            prompt_qrpls = ["Main"] + labels[:-1] if missing_entity == "meal" else labels
+            prompt_qrpls = ["Lunch/Dinner"] + labels[:-1] if missing_entity == "meal" else labels
             prompt_text = random.choice(prompt).format(join(self.changed))
             
             return (prompt_text, prompt_qrpls, None)
@@ -221,15 +220,25 @@ class Search:
             return (True, None, elastic_hits)
         
         
-    def reset_entity(self, entity):
+    def reset_entity(self, categories):
         
         """Rests Entity to no items"""
         
-        self.state_dict['search-params'][entity] = []
-        if entity not in ["avoid", "occasion", "technique"]:
+        for category in categories:
+            self.state_dict['search-params'][category] = []
+        
+        if categories[0] not in ["avoid", "occasion", "technique"]:
             return self.check_and_respond("-deleted")
         else:
             return self.check_and_respond()
+    
+    def reset_entity_to_none(self, categories):
+        
+        """Rests Entity to no items"""
+        
+        for category in categories:
+            self.state_dict['search-params'][category] = [None]
+        return self.check_and_respond()
             
     
     def logic(self):
@@ -290,7 +299,6 @@ class Search:
             
             #IF-BLOCK: search expired
             if self.expired:
-                print('EXPIRED')
                 return ("Apologies, but your search is expired. Let's restart! :)",
                         ["Restart search"], None)
             
@@ -309,42 +317,38 @@ class Search:
                     return (responses["delete-failed"][0], None, None)
                     
             #delete entire category
-            elif self.intent == "search-delete-meals":
-                return self.reset_entity("meal")
-            
-            elif self.intent == "search-delete-time":
-                return self.reset_entity("time")
-            
-            elif self.intent == "search-delete-difficulty":
-                return self.reset_entity("difficulty")
-            
-            elif self.intent == "search-delete-cuisine":
-                return self.reset_entity("cuisine")
-            
-            elif self.intent == "search-delete-ingredients":
-                return self.reset_entity("ingredient")
-            
-            elif self.intent == "search-delete-specials":
-                return self.reset_entity("special")
-            
-            elif self.intent == "search-delete-occasions":
-                return self.reset_entity("occasion")
+            elif self.intent == "search-delete-category" or self.intent == "search-no-pref-category":
                 
-            elif self.intent == "search-delete-techniques":
-                return self.reset_entity("technique")
-            
-            elif self.intent == "search-delete-avoided":
-                return self.reset_entity("avoid")
+                categories = [value.string_value
+                              for value in self.fields.get("categories").list_value.values]
+                if len(categories) == 0:
+                    return (responses['no-category'], None, None)
+                elif self.intent == "search-delete-category":
+                    return self.reset_entity(categories)
+                elif self.intent == "search-no-pref-category":
+                    return self.reset_entity_to_none(categories)
                 
             #search replace
             elif self.intent == "search-replace-with" or self.intent == "search-instead":
-                index = 0 if self.intent == "search-replace-with" else 1
-                if len(self.changed) == 2:
-                    print(self.changed)
+                
+                no_preference = False
+                if "no pref" in self.user_text.lower():
+                    no_preference = True
+                
+                if self.intent == "search-replace-with":
+                    i_1, i_2 = (0,1)
+                else:
+                    i_1, i_2 = (1,0)
+ 
+                if len(self.changed) == 2 or (len(self.changed) == 1 & no_preference):
                     for key,vals in self.state_dict['search-params'].items():
-                        if self.changed[index] in vals:
-                            vals.remove(self.changed[index])
-                            print(vals)
+                        if self.changed[i_1] in vals:
+                            vals.remove(self.changed[i_1])
+                            if no_preference:
+                                self.state_dict['search-params'][key] = [None]
+                            if key == "avoid":
+                                self.state_dict['search-params'][key].append(self.changed[i_2])
+                                self.state_dict['search-params']['ingredient'].remove(self.changed[i_2])
                     return self.check_and_respond()
                 else:
                     return (responses["replace-failed"][0], None, None)

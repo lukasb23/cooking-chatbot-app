@@ -168,17 +168,19 @@ class Elastic:
         res = es.get(index=self.index, doc_type=self.doc_type, id=recipe_id)
         
         #servings data
+        title = res['_source'].get("title")
         servings = res['_source'].get("servings")
-       
+        header = '*{}*\n\n'.format(title)
+        
         #nutrient data
         if field == "nutrients":
             if res['_source'].get("nutrients"):
                 res_list = Nutrients(res['_source']['nutrients']).get_nutrient_list()
-                res_list = '\u2022 ' + '\n\u2022 '.join(res_list)
+                res_list = 'Nutrients incl. % of daily need:\n' +'\u2022 ' +'\n\u2022 '.join(res_list)
                 if servings:
-                    servings = "\n\nPer serving, serves: {}.".format(servings)
+                    servings = "\n\n_Per serving, serves: {}._".format(servings)
                 else:
-                    servings = "\n\nPer serving, total serves: unknown."
+                    servings = "\n\n_Per serving, total serves: unknown._"
             else:
                 return "Apologies, for this recipes, there is no nutrient data available."
         
@@ -187,13 +189,13 @@ class Elastic:
             res_list = self.get_grouped_ingredients(res['_source']['ingredients'])
             if res_list:
                 if servings:
-                     servings = "\n\nServes: {}.".format(servings)
+                     servings = "\n\n_Serves: {}._".format(servings)
                 else:
-                    servings = "\n\nNo data about serving size available."
+                    servings = "\n\n_No data about serving size available._"
             else:
                 return "Apologies, for this recipe, there is no ingredients data available."
         
-        return res_list+servings
+        return header+res_list+servings
         
         
     def get_grouped_ingredients(self, res_list):

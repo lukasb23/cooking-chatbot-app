@@ -1,8 +1,8 @@
 # cooking-chatbot-app
 
-Building a Cooking Chatbot to search through >35.000 recipes from Epicurious, brief YouTube demo below: 
+Building a Cooking Chatbot to search through >35.000 recipes from Epicurious, brief YouTube demo below:
 
-[![EpiBot Demo](https://img.youtube.com/vi/zcZn3eAQzoI/0.jpg)](https://www.youtube.com/watch?v=zcZn3eAQzoI) 
+[![EpiBot Demo](https://img.youtube.com/vi/zcZn3eAQzoI/0.jpg)](https://www.youtube.com/watch?v=zcZn3eAQzoI)
 
 
 #### Key points:
@@ -32,7 +32,7 @@ This repo is the actual app hosted on Google Cloud. The steps to crawl the data 
   - ./bin/elasticsearch
 - Setup Ngrok
   - cd Programs/
-  - ./ngrok http 127.0.0.1:8080
+  - ./ngrok http 127.0.0.1:5000
 - Flask
   - export commands & activate Flask environment "chatbot-env"
     - export LC_ALL=C.UTF-8

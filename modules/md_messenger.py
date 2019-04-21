@@ -169,9 +169,10 @@ class Messenger(BaseMessenger):
         
         if "message" in message:
             if 'attachments' in message['message']:
+                print('entered')
                 response = Text(text="Apologies, but I'm only able to understand text input!")
-                return response.to_dict()
-            if 'text' in message['message']:
+                return (response.to_dict(), callback)
+            elif 'text' in message['message']:
                 message_text = message['message']['text']
         
         elif "postback" in message:
