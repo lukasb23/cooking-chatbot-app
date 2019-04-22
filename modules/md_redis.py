@@ -14,7 +14,7 @@ r = redis.StrictRedis(host=redis_host, port=6379)
 def redis_set(key, obj):
     pickled_object = pickle.dumps(obj)
     r.set(key, pickled_object)
-    r.expire(key, 300) #expire after 30mins
+    r.expire(key, 1800) #expire after 30mins
 
 def redis_get(key):
     res = r.get(key)

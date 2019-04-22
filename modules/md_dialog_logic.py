@@ -97,7 +97,7 @@ class Search:
                    state_dict['search-params']["avoid"] += self.param_dict.get("ingredient")
                 else:
                      state_dict['search-params']["avoid"] = self.param_dict.get("ingredient")
-                
+            
             state_dict = self.merge_except(state_dict)
             
         #no user data available
@@ -127,8 +127,8 @@ class Search:
             ingredient_set = set(state_dict['search-params']['ingredient'])
             for v in avoid_set & ingredient_set:
                 state_dict['search-params']['ingredient'].remove(v)
-        if len(state_dict['search-params']['ingredient']) == 0:
-            state_dict['search-params']['ingredient'] = [None]
+            if len(state_dict['search-params']['ingredient']) == 0:
+                state_dict['search-params']['ingredient'] = [None]
         
         return state_dict
         
@@ -141,7 +141,8 @@ class Search:
         for entity in entities.keys():
             if len(self.state_dict['search-params'][entity]) == 0:
                 undefined.append(entity)
-        
+        print(undefined)
+        print(self.state_dict)
         return undefined
     
         
@@ -307,11 +308,14 @@ class Search:
                 
                 removed = False
                 for key,vals in self.state_dict['search-params'].items():
+                    print(self.changed)
                     for c in self.changed:
+                        print(self.changed, c)
                         if c in vals:
                             vals.remove(c)
                             removed = True
                 if removed:
+                    print('Got 2')
                     return self.check_and_respond("-deleted")
                 else:
                     return (responses["delete-failed"][0], None, None)
