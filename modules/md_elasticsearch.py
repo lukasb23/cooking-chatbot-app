@@ -37,11 +37,13 @@ class Elastic:
         all_bools = []
         for k,vals in state_dict['search-params'].items():
          
-            #boost = self.boosts.get(k)
-            if vals == [None] or vals == []:
+            #skip difficulty normal, i.e. no preferences
+            if vals == [None] or vals == [] or "Normal" in vals:
                 continue
             else:
-                term_list = []
+                #Standard and Long if Long
+                if "Long" in vals and "Standard" not in vals:
+                    vals.append("Standard")
                 #must query for ingredient/special, must_not for must-not should for rest
                 if k in ["ingredient", "special"]:
                     query = "must"
@@ -51,6 +53,7 @@ class Elastic:
                     query = "should"
                 
                 #iterate and append
+                term_list = []
                 for v in vals:
                     term_list.append({"term": {"categories.{}.keyword".format(k): {"value": "{}".format(v)}}})
                 all_bools.append({"bool": {query: term_list}})
@@ -152,7 +155,6 @@ class Elastic:
         
         #if under 5 results, run should query for remaining, avoid duplicate results
         if len(self.hit_list) < 5:
-            print('Entered the extra')
             self.exact_match = False
             self.run_search(self.should_query(state_dict['search_batch'],
                                               5+len(self.hit_list)))
