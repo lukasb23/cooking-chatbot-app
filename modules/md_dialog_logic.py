@@ -308,14 +308,11 @@ class Search:
                 
                 removed = False
                 for key,vals in self.state_dict['search-params'].items():
-                    print(self.changed)
                     for c in self.changed:
-                        print(self.changed, c)
                         if c in vals:
                             vals.remove(c)
                             removed = True
                 if removed:
-                    print('Got 2')
                     return self.check_and_respond("-deleted")
                 else:
                     return (responses["delete-failed"][0], None, None)
