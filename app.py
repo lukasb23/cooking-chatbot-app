@@ -1,7 +1,5 @@
 #Imports
-import os
 import json
-import pickle
 import logging
 from flask import Flask, request
 
