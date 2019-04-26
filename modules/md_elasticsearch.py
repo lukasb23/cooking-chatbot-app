@@ -65,7 +65,6 @@ class Elastic:
         
         """Fits search terms into Elasticsearch body structure for MUST query"""
         
-        print({"from": b, "size": 5, "query" : {"bool" : {"must" : self.bools}}})
         return {"from": b, "size": 5, "query" : {"bool" : {"must" : self.bools}}}
     
     def should_query(self, b=0, s=5):
