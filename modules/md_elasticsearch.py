@@ -67,11 +67,11 @@ class Elastic:
         
         return {"from": b, "size": 5, "query" : {"bool" : {"must" : self.bools}}}
     
-    def should_query(self, b=0, s=5):
+    def should_query(self, b=0):
         
         """Fits search terms into Elasticsearch body structure for SHOULD query"""
         
-        return {"from": b, "size": s, "query" : {"bool" : {"should" : self.bools}}}
+        return {"from": b, "size": 5, "query" : {"bool" : {"should" : self.bools}}}
         
     
     def fill_hit_list(self, hits):
