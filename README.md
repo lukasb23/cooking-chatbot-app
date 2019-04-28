@@ -2,7 +2,7 @@
 
 Building a Cooking Chatbot to search through >35.000 recipes from Epicurious, brief YouTube demo below:
 
-[![EpiBot Demo](https://img.youtube.com/vi/zcZn3eAQzoI/0.jpg)](https://www.youtube.com/watch?v=zcZn3eAQzoI)
+[![EpiBot Demo](https://img.youtube.com/vi/UUA2kssApyA/0.jpg)](https://www.youtube.com/watch?v=UUA2kssApyA)
 
 
 #### Key points:
